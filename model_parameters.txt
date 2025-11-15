@@ -1,0 +1,14 @@
+Temperature (Controls Creativity and Randomness)
+
+Temperature is a parameter that determines how “creative” or “risky” the model can be when generating responses.
+A low temperature (e.g., 0.0–0.3) makes the model more deterministic, meaning it will consistently produce the same answer with minimal variation. This is ideal for technical answers, fact-based questions, or using knowledge base context.
+
+A higher temperature (0.7–1.0) increases randomness and creativity, allowing the model to explore more diverse phrasing or ideas. This is useful for brainstorming or storytelling, but not recommended for accurate technical content.
+
+Top-p (Controls Concentration of Probability Distribution)
+
+Top-p, or nucleus sampling, controls how much of the probability distribution the model considers when generating each token.
+A top-p = 1.0 means the model looks at all possible tokens, resulting in richer and more varied responses.
+A lower top-p (like 0.1–0.3) restricts the model to only the most likely tokens, ensuring high precision and reducing the chance of irrelevant or incorrect answers.
+
+In most Bedrock applications, temperature and top-p are used together to balance creativity and accuracy.

@@ -3,7 +3,6 @@ import boto3
 from botocore.exceptions import ClientError
 
 def upload_files_to_s3(folder_path, bucket_name, prefix=""):
-    # Initialize S3 client
     s3_client = boto3.client('s3')
 
     # Check if the folder exists
@@ -21,20 +20,19 @@ def upload_files_to_s3(folder_path, bucket_name, prefix=""):
             s3_key = os.path.join(prefix, relative_path).replace("\\", "/")
 
             try:
-                # Upload the file to S3
                 s3_client.upload_file(local_path, bucket_name, s3_key)
                 print(f"Successfully uploaded {relative_path} to {bucket_name}/{s3_key}")
             except ClientError as e:
                 print(f"Error uploading {relative_path}: {e}")
 
 if __name__ == "__main__":
-    # Folder path
-    folder_path = "spec-sheets"
+    # Correct folder path based on your project structure
+    folder_path = "scripts/spec-sheets"
     
-    # S3 bucket name
-    bucket_name = "bedrock-kb-975050171524"  # Replace with your actual bucket name
+    # Your bucket name
+    bucket_name = "bedrock-kb-005482880469"
     
-    # S3 prefix (optional)
-    prefix = "spec-sheets" 
+    # Upload into spec-sheets folder in S3
+    prefix = "spec-sheets"
     
     upload_files_to_s3(folder_path, bucket_name, prefix)

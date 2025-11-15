@@ -1,25 +1,40 @@
+############################################################
+# AURORA SERVERLESS V2 CLUSTER
+############################################################
+
 resource "aws_rds_cluster" "aurora_serverless" {
   cluster_identifier      = var.cluster_identifier
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  engine_version          = var.engine_version
+
+  # Valid engine version
+  engine_version          = "15"       # FIXED
+
   database_name           = var.database_name
   master_username         = var.master_username
   master_password         = random_password.master_password.result
+
   enable_http_endpoint    = true
   skip_final_snapshot     = true
   apply_immediately       = true
-
   allow_major_version_upgrade = true
 
   serverlessv2_scaling_configuration {
-    max_capacity             = var.max_capacity
-    min_capacity             = var.min_capacity
+    max_capacity = var.max_capacity
+    min_capacity = var.min_capacity
   }
 
   vpc_security_group_ids = [aws_security_group.aurora_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.aurora.name
+
+  tags = {
+    Name = var.cluster_identifier
+  }
 }
+
+############################################################
+# AURORA SERVERLESS INSTANCE
+############################################################
 
 resource "aws_rds_cluster_instance" "aurora_instance" {
   cluster_identifier = aws_rds_cluster.aurora_serverless.id
@@ -27,6 +42,10 @@ resource "aws_rds_cluster_instance" "aurora_instance" {
   engine             = aws_rds_cluster.aurora_serverless.engine
   engine_version     = aws_rds_cluster.aurora_serverless.engine_version
 }
+
+############################################################
+# SUBNET GROUP
+############################################################
 
 resource "aws_db_subnet_group" "aurora" {
   name       = "${var.cluster_identifier}-subnet-group"
@@ -36,6 +55,10 @@ resource "aws_db_subnet_group" "aurora" {
     Name = "${var.cluster_identifier}-subnet-group"
   }
 }
+
+############################################################
+# SECURITY GROUP
+############################################################
 
 resource "aws_security_group" "aurora_sg" {
   name        = "${var.cluster_identifier}-sg"
@@ -52,7 +75,7 @@ resource "aws_security_group" "aurora_sg" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = "-1" 
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -61,19 +84,39 @@ resource "aws_security_group" "aurora_sg" {
   }
 }
 
-# New resources for secret management
+############################################################
+# RANDOM PASSWORD
+############################################################
+
 resource "random_password" "master_password" {
   length  = 16
   special = true
 }
 
-resource "aws_secretsmanager_secret" "aurora_secret" {
-  name = "${var.cluster_identifier}"
-  recovery_window_in_days = 0
+############################################################
+# UNIQUE SECRET NAME (Fix for conflicts)
+############################################################
+
+resource "random_id" "suffix" {
+  byte_length = 2
 }
+
+resource "aws_secretsmanager_secret" "aurora_secret" {
+  name                    = "${var.cluster_identifier}-${random_id.suffix.hex}"
+  recovery_window_in_days = 0
+
+  tags = {
+    Name = "${var.cluster_identifier}-secret"
+  }
+}
+
+############################################################
+# SECRET VALUE
+############################################################
 
 resource "aws_secretsmanager_secret_version" "aurora_secret_version" {
   secret_id = aws_secretsmanager_secret.aurora_secret.id
+
   secret_string = jsonencode({
     dbClusterIdentifier = aws_rds_cluster.aurora_serverless.cluster_identifier
     password            = random_password.master_password.result

@@ -32,132 +32,137 @@ This project consists of several components:
 The goal is to create a Bedrock Knowledge Base that can leverage data stored in an Aurora Serverless database, with the ability to easily upload supporting documents to S3. This will allow us to ask the LLM for information from the documentation.
 
 ## Prerequisites
+# AWS Bedrock Knowledge Base with Aurora Serverless
 
-Before you begin, ensure you have the following:
+This repository contains an implementation that integrates an AWS Bedrock Knowledge Base with an Aurora Serverless PostgreSQL database and supporting scripts and Terraform stacks.
 
-- AWS CLI installed and configured with appropriate credentials
-- Terraform installed (version 0.12 or later)
-- Python 3.10 or later
-- pip (Python package manager)
+---
+
+## Personal / Submission Details (replace before submitting)
+- **Name:** YOUR_FULL_NAME_HERE
+- **Email:** YOUR_EMAIL_HERE
+- **Udacity Student ID:** YOUR_UDACITY_ID_HERE
+- **GitHub repo (this project):** `https://github.com/YOUR_ACCOUNT/cd13926-Building-Generative-AI-Applications-with-Amazon-Bedrock-and-Python-project-solution`
+ - **Name:** Shubham Kumar Sharma
+ - **Email:** shubhamsharma86900@gmail.com
+ - **Udacity Student ID:** None
+ - **GitHub repo (this project):** `https://github.com/shubhamkumarsharma03/Intelligent-Document-Querying-System`
+
+Replace the placeholders above with your actual details before submitting to Udacity.
+
+---
+
+## Quick Summary (for reviewer)
+- Project: Bedrock Knowledge Base + Aurora Serverless integration
+- Infrastructure: Managed with Terraform (two stacks: `stack1` and `stack2`)
+- Scripts: Database preparation and S3 upload scripts in `scripts/`
+- Screenshots & outputs: All output and necessary screenshots are in the `Screenshot/` folder
+- Evaluation / model snippets: See `bedrock_utils.py` and `code_snippits.txt` (evaluation and prompt validation snippets)
+
+---
+
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Prerequisites](#prerequisites)
+3. [Project Structure](#project-structure)
+4. [Model Parameters (included)](#model-parameters-included)
+5. [Deployment Steps](#deployment-steps)
+6. [Using the Scripts](#using-the-scripts)
+7. [Evaluation / Code Snippets Locations](#evaluation--code-snippets-locations)
+8. [Screenshots & Deliverables](#screenshots--deliverables)
+9. [Submission Checklist](#submission-checklist)
+
+---
+
+## Project Overview
+
+This project sets up an AWS Bedrock Knowledge Base integrated with an Aurora Serverless PostgreSQL database. It includes Terraform stacks to provision the infrastructure, SQL to prepare the database for vector storage, and Python utilities to upload files to S3 and interact with Bedrock and the Knowledge Base.
+
+## Prerequisites
+
+- AWS CLI installed and configured
+- Terraform installed (compatible version used to create stacks in this repo)
+- Python 3.10+ and `pip`
+- AWS account with permissions for Bedrock, RDS/Aurora, S3, IAM and related resources
 
 ## Project Structure
 
 ```
 project-root/
-│
-├── stack1
-|   ├── main.tf
-|   ├── outputs.tf
-|   └── variables.tf
-|
-├── stack2
-|   ├── main.tf
-|   ├── outputs.tf
-|   └── variables.tf
-|
-├── modules/
-│   ├── aurora_serverless/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── bedrock_kb/
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
-│
-├── scripts/
+├── stack1/                # VPC, Aurora Serverless, S3, IAM
+├── stack2/                # Bedrock Knowledge Base stack
+├── modules/               # Terraform modules
+├── scripts/               # Upload and DB setup scripts
 │   ├── aurora_sql.sql
 │   └── upload_to_s3.py
-│
-├── spec-sheets/
-│   └── machine_files.pdf
-│
+├── Screenshot/            # All screenshots and output images (for submission)
+├── bedrock_utils.py       # Bedrock and KB helper functions (evaluation snippets)
+├── code_snippits.txt      # Extracted snippets used during evaluation and testing
+├── model_parameters.txt   # Explanation of temperature and top_p used for models
+├── requirements.txt       # Python dependencies
 └── README.md
 ```
 
-## Deployment Steps
+## Model Parameters (included)
 
-1. Clone this repository to your local machine.
+The contents of `model_parameters.txt` are included below for reviewer convenience:
 
-2. Navigate to the project Stack 1. This stack includes VPC, Aurora servlerless and S3
+```
+Temperature (Controls Creativity and Randomness)
 
-3. Initialize Terraform:
+Temperature is a parameter that determines how “creative” or “risky” the model can be when generating responses.
+A low temperature (e.g., 0.0–0.3) makes the model more deterministic, meaning it will consistently produce the same answer with minimal variation. This is ideal for technical answers, fact-based questions, or using knowledge base context.
+
+A higher temperature (0.7–1.0) increases randomness and creativity, allowing the model to explore more diverse phrasing or ideas. This is useful for brainstorming or storytelling, but not recommended for accurate technical content.
+
+Top-p (Controls Concentration of Probability Distribution)
+
+Top-p, or nucleus sampling, controls how much of the probability distribution the model considers when generating each token.
+A top-p = 1.0 means the model looks at all possible tokens, resulting in richer and more varied responses.
+A lower top-p (like 0.1–0.3) restricts the model to only the most likely tokens, ensuring high precision and reducing the chance of irrelevant or incorrect answers.
+
+In most Bedrock applications, temperature and top-p are used together to balance creativity and accuracy.
+```
+
+## Deployment Steps (short)
+
+1. Clone this repository.
+2. `cd stack1` -> `terraform init` -> `terraform apply` (follow prompts)
+   - Stack 1 provisions VPC, Aurora Serverless Postgres, S3, and IAM resources.
+3. Prepare the Aurora DB using `scripts/aurora_sql.sql` (use RDS Query Editor or psql against the DB endpoint).
+4. `cd ../stack2` -> `terraform init` -> `terraform apply`
+   - Stack 2 provisions the Bedrock Knowledge Base and associated roles.
+5. Upload PDFs or documents placed in `spec-sheets/` to S3:
+   ```pwsh
+   python .\\scripts\\upload_to_s3.py
    ```
-   terraform init
-   ```
-
-4. Review and modify the Terraform variables in `main.tf` as needed, particularly:
-   - AWS region
-   - VPC CIDR block
-   - Aurora Serverless configuration
-   - s3 bucket
-
-5. Deploy the infrastructure:
-   ```
-   terraform apply
-   ```
-   Review the planned changes and type "yes" to confirm.
-
-6. After the Terraform deployment is complete, note the outputs, particularly the Aurora cluster endpoint.
-
-7. Prepare the Aurora Postgres database. This is done by running the sql queries in the script/ folder. This can be done through Amazon RDS console and the Query Editor.
-
-8. Navigate to the project Stack 2. This stack includes Bedrock Knowledgebase
-
-9. Initialize Terraform:
-   ```
-   terraform init
-   ```
-
-10. Use the values outputs of the stack 1 to modify the values in `main.tf` as needed:
-     - Bedrock Knowledgebase configuration
-
-11. Deploy the infrastructure:
-      ```
-      terraform apply
-      ```
-      - Review the planned changes and type "yes" to confirm.
-
-
-12. Upload pdf files to S3, place your files in the `spec-sheets` folder and run:
-      ```
-      python scripts/upload_to_s3.py
-      ```
-      - Make sure to update the S3 bucket name in the script before running.
-
-13. Sync the data source in the knowledgebase to make it available to the LLM.
+6. Sync or configure the knowledge base data source in Bedrock so documents are retrievable by the LLM.
 
 ## Using the Scripts
 
-### S3 Upload Script
+- `scripts/upload_to_s3.py` uploads the files from `spec-sheets/` to the configured S3 bucket. Update the bucket name in the script before running.
+- `scripts/aurora_sql.sql` contains the SQL statements required to prepare the Postgres schema for vector/document storage.
 
-The `upload_to_s3.py` script does the following:
-- Uploads all files from the `spec-sheets` folder to a specified S3 bucket
-- Maintains the folder structure in S3
+## Evaluation / Code Snippets Locations
 
-To use it:
-1. Update the `bucket_name` variable in the script with your S3 bucket name.
-2. Optionally, update the `prefix` variable if you want to upload to a specific path in the bucket.
-3. Run `python scripts/upload_to_s3.py`.
+- The prompt validation and evaluation snippets used during testing are implemented in `bedrock_utils.py`.
+  - Key functions: `valid_prompt`, `query_knowledge_base`, and `generate_response`.
+- A plain-text copy of these and other snippet examples are included in `code_snippits.txt` for quick review.
 
-## Complete chat app
+Example: The `valid_prompt` function uses Bedrock model calls to categorize a user prompt before invoking the KB or model.
 
-### Complete invoke model and knoweldge base code
-- Open the bedrock_utils.py file and the following functions:
-  - query_knowledge_base
-  - generate_response
+## Screenshots & Deliverables
 
-### Complete the prompt validation function
-- Open the bedrock_utils.py file and the following function:
-  - valid_prompt
+- All screenshots and output captures used for evidence and evaluation are located in the `Screenshot/` folder at repository root.
+- Please review that folder for the images you want to include with your Udacity submission.
 
-  Hint: categorize the user prompt
+## Submission Checklist (Udacity)
+- [ ] Replace the placeholder personal details at the top of this README.
+- [ ] Confirm `requirements.txt` contains all packages used and include versions if required.
+- [ ] Verify `Screenshot/` contains the expected output screenshots.
+- [ ] Ensure `bedrock_utils.py` and `code_snippits.txt` include the evaluation snippets you want the reviewer to see.
+- [ ] (Optional) Create a short video walkthrough pointing to `stack1/`, `stack2/`, and how you tested retrieval from the knowledge base.
 
-## Troubleshooting
+---
 
-- If you encounter permissions issues, ensure your AWS credentials have the necessary permissions for creating all the resources.
-- For database connection issues, check that the security group allows incoming connections on port 5432 from your IP address.
-- If S3 uploads fail, verify that your AWS credentials have permission to write to the specified bucket.
-- For any Terraform errors, ensure you're using a compatible version and that all module sources are correctly specified.
-
-For more detailed troubleshooting, refer to the error messages and logs provided by Terraform and the Python scripts.
+If you want, I can replace the placeholders at the top with your actual name, email, Udacity student ID and GitHub link now — provide the exact values and I will update `README.md` and finish the submission checklist.
