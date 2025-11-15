@@ -39,16 +39,11 @@ This repository contains an implementation that integrates an AWS Bedrock Knowle
 ---
 
 ## Personal / Submission Details (replace before submitting)
-- **Name:** YOUR_FULL_NAME_HERE
-- **Email:** YOUR_EMAIL_HERE
-- **Udacity Student ID:** YOUR_UDACITY_ID_HERE
-- **GitHub repo (this project):** `https://github.com/YOUR_ACCOUNT/cd13926-Building-Generative-AI-Applications-with-Amazon-Bedrock-and-Python-project-solution`
+
  - **Name:** Shubham Kumar Sharma
  - **Email:** shubhamsharma86900@gmail.com
- - **Udacity Student ID:** None
  - **GitHub repo (this project):** `https://github.com/shubhamkumarsharma03/Intelligent-Document-Querying-System`
 
-Replace the placeholders above with your actual details before submitting to Udacity.
 
 ---
 
@@ -57,7 +52,7 @@ Replace the placeholders above with your actual details before submitting to Uda
 - Infrastructure: Managed with Terraform (two stacks: `stack1` and `stack2`)
 - Scripts: Database preparation and S3 upload scripts in `scripts/`
 - Screenshots & outputs: All output and necessary screenshots are in the `Screenshot/` folder
-- Evaluation / model snippets: See `bedrock_utils.py` and `code_snippits.txt` (evaluation and prompt validation snippets)
+- Evaluation / model snippets: See 'bedrock_utils.py', 'temperature_top_p_explanation.pdf' or 'code_snippits.txt' (evaluation and prompt validation snippets)
 
 ---
 
@@ -156,13 +151,5 @@ Example: The `valid_prompt` function uses Bedrock model calls to categorize a us
 - All screenshots and output captures used for evidence and evaluation are located in the `Screenshot/` folder at repository root.
 - Please review that folder for the images you want to include with your Udacity submission.
 
-## Submission Checklist (Udacity)
-- [ ] Replace the placeholder personal details at the top of this README.
-- [ ] Confirm `requirements.txt` contains all packages used and include versions if required.
-- [ ] Verify `Screenshot/` contains the expected output screenshots.
-- [ ] Ensure `bedrock_utils.py` and `code_snippits.txt` include the evaluation snippets you want the reviewer to see.
-- [ ] (Optional) Create a short video walkthrough pointing to `stack1/`, `stack2/`, and how you tested retrieval from the knowledge base.
 
----
 
-If you want, I can replace the placeholders at the top with your actual name, email, Udacity student ID and GitHub link now — provide the exact values and I will update `README.md` and finish the submission checklist.
